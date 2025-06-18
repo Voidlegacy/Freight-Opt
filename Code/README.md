@@ -6,7 +6,7 @@ This script reads a CSV file of contracts and groups them into jump freighter tr
 
 - Handles both Inbound and Outbound contracts
 - Volume limits:
-  - Inbound: 349,875 m³
+  - Inbound: 350,000 m³
   - Outbound: 207,125 m³
 - Generates manifest `.txt` files per direction
 - Cleans column names and handles CSV volume formatting issues
