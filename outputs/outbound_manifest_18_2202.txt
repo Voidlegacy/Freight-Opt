@@ -1,0 +1,82 @@
+=== OUTBOUND ===
+
+Minimum Outbound freighters needed: 26
+
+Freighter 1 - Used: 350000 m³ | Reward: 193690000isk
+  - Proposition MJ >> Amarr VIII (Oris) - Emperor Family Academy 350000 m³ | Rush: No
+
+Freighter 2 - Used: 350000 m³ | Reward: 193000000isk
+  - Shen Hasagi >> Amarr VIII (Oris) - Emperor Family Academy 350000 m³ | Rush: No
+
+Freighter 3 - Used: 349999 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349999 m³ | Rush: No
+
+Freighter 4 - Used: 349998 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349998 m³ | Rush: No
+
+Freighter 5 - Used: 349994 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349994 m³ | Rush: No
+
+Freighter 6 - Used: 349918 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349918 m³ | Rush: No
+
+Freighter 7 - Used: 349917 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349917 m³ | Rush: No
+
+Freighter 8 - Used: 349859 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349859 m³ | Rush: No
+
+Freighter 9 - Used: 349842 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349842 m³ | Rush: No
+
+Freighter 10 - Used: 349836 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349836 m³ | Rush: No
+
+Freighter 11 - Used: 349587 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349587 m³ | Rush: No
+
+Freighter 12 - Used: 349328 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349328 m³ | Rush: No
+
+Freighter 13 - Used: 349216 m³ | Reward: 193000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 349216 m³ | Rush: No
+
+Freighter 14 - Used: 348236 m³ | Reward: 157000000isk
+  - GiggMaster >> Amarr VIII (Oris) - Emperor Family Academy 348236 m³ | Rush: No
+
+Freighter 15 - Used: 346694 m³ | Reward: 193000000isk
+  - Proposition MJ >> Amarr VIII (Oris) - Emperor Family Academy 346694 m³ | Rush: No
+
+Freighter 16 - Used: 341250 m³ | Reward: 154000000isk
+  - Pete Bradshaw >> Amarr VIII (Oris) - Emperor Family Academy 341250 m³ | Rush: No
+
+Freighter 17 - Used: 319506 m³ | Reward: 176000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 319506 m³ | Rush: No
+
+Freighter 18 - Used: 308150 m³ | Reward: 170000000isk
+  - Shen Hasagi >> Amarr VIII (Oris) - Emperor Family Academy 308150 m³ | Rush: No
+
+Freighter 19 - Used: 304301 m³ | Reward: 193069069isk
+  - Proposition MJ >> Amarr VIII (Oris) - Emperor Family Academy 304301 m³ | Rush: No
+
+Freighter 20 - Used: 300000 m³ | Reward: 165000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 300000 m³ | Rush: No
+
+Freighter 21 - Used: 300000 m³ | Reward: 165000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 300000 m³ | Rush: No
+
+Freighter 22 - Used: 300000 m³ | Reward: 165000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 300000 m³ | Rush: No
+
+Freighter 23 - Used: 300000 m³ | Reward: 165000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 300000 m³ | Rush: No
+
+Freighter 24 - Used: 300000 m³ | Reward: 165000000isk
+  - Johnny Locke >> Amarr VIII (Oris) - Emperor Family Academy 300000 m³ | Rush: No
+
+Freighter 25 - Used: 227692 m³ | Reward: 103000000isk
+  - Darcey Archelous >> Amarr VIII (Oris) - Emperor Family Academy 227692 m³ | Rush: No
+
+Freighter 26 - Used: 33337 m³ | Reward: 120000000isk
+  - 3xt3nd3d Shihari >> Jita IV - Moon 4 - Caldari Navy Assembly Plant 30147 m³ | Rush: No
+  - Linda Daracan >> Jita IV - Moon 4 - Caldari Navy Assembly Plant 3190 m³ | Rush: No
