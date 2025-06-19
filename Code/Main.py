@@ -29,23 +29,26 @@ if df['reward'].isnull().any():
 # === Determine direction ===
 def get_direction(row):
     if 'jita' in row['from'].lower():
-        return 'Inbound'
+        return 'Jita - Inbound'
     elif 'jita' in row['to'].lower():
-        return 'Outbound'
+        return 'Jita - Outbound'
     elif 'amarr' in row['from'].lower():
-        return 'Inbound' 
+        return 'Amarr - Inbound' 
     elif 'amarr' in row['to'].lower():
-        return 'Outbound'
-    return 'Inbound'
+        return 'Amarr - Outbound'
+    return 'Null'
 
 
 df['direction'] = df.apply(get_direction, axis=1)
-df = df[df['direction'].isin(['Inbound', 'Outbound'])]
+df = df[df['direction'].isin(['Jita - Inbound', 'Jita - Outbound', 'Null','Amarr - Outbound', 'Amarr - Inbound'])]
 
 # === Volume limits with margin ===
 LIMITS = {
-    'Inbound': 350000,
-    'Outbound': 207125
+    'Jita - Inbound': 350000,
+    'Jita - Outbound': 207125,
+    'Amarr - Inbound': 350000,
+    'Amarr - Outbound': 207125,
+    'Null': 350000 
 }
 
 # === FFD bin-packing algorithm ===
@@ -76,9 +79,9 @@ def pack_freighters(df_dir, direction):
 def create_manifest_text(freighters, direction):
     lines = [f"Minimum {direction} freighters needed: {len(freighters)}"]
     for i, f in enumerate(freighters, 1):
-        lines.append(f"\nFreighter {i} - Used: {f['used']} m³ | Reward: {f['reward']}isk")
+        lines.append(f"\nFreighter {i} - Used: {f['used']} m³ | Reward: {f['reward'] / 1_000_000:.2f}mil isk")
         for p in f['parcels']:
-            lines.append(f"  - {p['issuer']} >> {p['to']} {p['volume']} m³ | Rush: {p['rush']}")
+            lines.append(f"  - {p['issuer']} {p['from']} >> {p['to']} {p['volume']} m³ | Rush: {p['rush']}")
     return '\n'.join(lines)
 
 # === Run for each direction ===
@@ -86,7 +89,7 @@ output = {}
 os.makedirs("outputs", exist_ok=True)
 timestamp = datetime.now().strftime("%d_%H%M")
 
-for direction in ['Inbound', 'Outbound']:
+for direction in ['Amarr - Inbound', 'Amarr - Outbound', 'Null', 'Jita - Inbound', 'Jita - Outbound']:
     df_dir = df[df['direction'] == direction]
     if df_dir.empty:
         print(f"No {direction} contracts — skipping.")
@@ -104,4 +107,3 @@ for direction in ['Inbound', 'Outbound']:
         f.write(f"=== {direction.upper()} ===\n\n")
         f.write(manifest)
 
-input("\nDone! Press Enter to close...")
