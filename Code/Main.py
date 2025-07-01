@@ -1,109 +1,154 @@
 import pandas as pd
-import os, glob
-from datetime import datetime
 
-# === Load latest CSV file ===
-print("Looking for CSVs in:", os.getcwd())
-csv_dir = "data"
-list_of_files = glob.glob(os.path.join(csv_dir, "*.csv"))
-if not list_of_files:
-    raise FileNotFoundError("No CSV files found in the ./data folder.")
-latest_file = max(list_of_files, key=os.path.getmtime)
-print(f"Using latest file: {latest_file}")
-df = pd.read_csv(latest_file)
+# === User Inputs ===
+freighter_count = int(input("How many freighters are you using (per direction)? "))
+isotope_cost = float(input("Enter cost per isotope (ISK): "))
 
-# === Clean column headers ===
-df.columns = [col.strip().lower() for col in df.columns]
-print("CSV Columns Detected:", df.columns.tolist())
+# === Configuration ===
+FREIGHTER_VOLUME_LIMIT = 350_000  # m3
+JITA_SYSTEM_ID = 30000142
+UALX_SYSTEM_ID = 30004807
+AMARR_SYSTEM_ID = 30002187
 
-# === Convert volume to numeric ===
-df['volume'] = pd.to_numeric(df['volume'].astype(str).str.replace(',', ''), errors='coerce').round().astype('Int64')
-if df['volume'].isnull().any():
-    raise ValueError("Some rows have invalid or missing volume values.")
+# === Read CSV ===
+df = pd.read_csv("corporate_contracts_filtered.csv")
 
-# === Convert reward to numeric ===
-df['reward'] = pd.to_numeric(df['reward'].astype(str).str.replace(',', ''), errors='coerce').round().astype('Int64')
-if df['reward'].isnull().any():
-    raise ValueError("Some rows have invalid or missing reward values.")
+# === Tag Inbound/Outbound ===
+df['direction'] = df['end_system_id'].apply(lambda x: 'outbound' if x == JITA_SYSTEM_ID else ('inbound' if x == UALX_SYSTEM_ID else 'unknown'))
 
-# === Determine direction ===
-def get_direction(row):
-    if 'jita' in row['from'].lower():
-        return 'Jita - Inbound'
-    elif 'jita' in row['to'].lower():
-        return 'Jita - Outbound'
-    elif 'amarr' in row['from'].lower():
-        return 'Amarr - Inbound' 
-    elif 'amarr' in row['to'].lower():
-        return 'Amarr - Outbound'
-    return 'Null'
+# === Filter out unknown directions ===
+df = df[df['direction'] != 'unknown']
 
+# === Sort contracts by volume descending ===
+df = df.sort_values(by="volume", ascending=False).reset_index(drop=True)
 
-df['direction'] = df.apply(get_direction, axis=1)
-df = df[df['direction'].isin(['Jita - Inbound', 'Jita - Outbound', 'Null','Amarr - Outbound', 'Amarr - Inbound'])]
+# === Split contracts by direction ===
+outbound_contracts = df[df['direction'] == 'outbound']
+inbound_contracts = df[df['direction'] == 'inbound']
 
-# === Volume limits with margin ===
-LIMITS = {
-    'Jita - Inbound': 350000,
-    'Jita - Outbound': 207125,
-    'Amarr - Inbound': 350000,
-    'Amarr - Outbound': 207125,
-    'Null': 350000 
-}
-
-# === FFD bin-packing algorithm ===
-def pack_freighters(df_dir, direction):
-    limit = LIMITS[direction]
-    parcels = df_dir.sort_values(by='volume', ascending=False).to_dict('records')
+def allocate_freighters(contracts, max_freighters):
     freighters = []
+    current = []
+    current_volume = 0
+    freighters_used = 0
+    fuel_cost_total = 0
 
-    for parcel in parcels:
-        placed = False
-        for freighter in freighters:
-            if freighter['used'] + parcel['volume'] <= limit:
-                freighter['parcels'].append(parcel)
-                freighter['used'] += parcel['volume']
-                freighter['reward'] += parcel['reward']
-                placed = True
-                break
-        if not placed:
-            freighters.append({
-                'used': parcel['volume'],
-                'reward': parcel['reward'],
-                'parcels': [parcel]
-            })
+    for _, row in contracts.iterrows():
+        vol = row['volume']
 
-    return freighters
+        row_dict = row.to_dict()
+        current.append(row_dict)
+        current_volume += vol
 
-# === Format manifest output ===
-def create_manifest_text(freighters, direction):
-    lines = [f"Minimum {direction} freighters needed: {len(freighters)}"]
-    for i, f in enumerate(freighters, 1):
-        lines.append(f"\nFreighter {i} - Used: {f['used']} m³ | Reward: {f['reward'] / 1_000_000:.2f}mil isk")
-        for p in f['parcels']:
-            lines.append(f"  - {p['issuer']} {p['from']} >> {p['to']} {p['volume']} m³ | Rush: {p['rush']}")
-    return '\n'.join(lines)
+        if current_volume > FREIGHTER_VOLUME_LIMIT:
+            current.pop()
+            current_volume -= vol
 
-# === Run for each direction ===
-output = {}
-os.makedirs("outputs", exist_ok=True)
-timestamp = datetime.now().strftime("%d_%H%M")
+            # Calculate unified fuel cost
+            dest_systems = set(c['end_system_id'] for c in current)
+            max_ly = max(c['lightyears'] for c in current)
+            includes_amarr = AMARR_SYSTEM_ID in dest_systems
+            includes_jita = JITA_SYSTEM_ID in dest_systems
 
-for direction in ['Amarr - Inbound', 'Amarr - Outbound', 'Null', 'Jita - Inbound', 'Jita - Outbound']:
-    df_dir = df[df['direction'] == direction]
-    if df_dir.empty:
-        print(f"No {direction} contracts — skipping.")
-        continue
+            fuel_cost = round(max_ly * 2200 * isotope_cost)
+            if includes_amarr:
+                fuel_cost += 20_000_000
 
-    freighters = pack_freighters(df_dir, direction)
-    manifest = create_manifest_text(freighters, direction)
-    output[direction] = manifest
+            for c in current:
+                c['fuel_cost'] = fuel_cost
 
-    print(f"\n=== {direction.upper()} ===\n")
-    print(manifest)
+            fuel_cost_total += fuel_cost
+            freighters.append(current)
+            freighters_used += 1
+            if freighters_used == max_freighters:
+                return freighters, fuel_cost_total
 
-    filename = f"{direction.lower()}_manifest_{timestamp}.txt"
-    with open(os.path.join("outputs", filename), "w", encoding="utf-8") as f:
-        f.write(f"=== {direction.upper()} ===\n\n")
-        f.write(manifest)
+            current = [row_dict]
+            current_volume = vol
 
+    if current and freighters_used < max_freighters:
+        dest_systems = set(c['end_system_id'] for c in current)
+        max_ly = max(c['lightyears'] for c in current)
+        includes_amarr = AMARR_SYSTEM_ID in dest_systems
+        includes_jita = JITA_SYSTEM_ID in dest_systems
+
+        fuel_cost = round(max_ly * 2200 * isotope_cost)
+        if includes_amarr:
+            fuel_cost += 20_000_000
+
+        for c in current:
+            c['fuel_cost'] = fuel_cost
+
+        fuel_cost_total += fuel_cost * 1.1  # Add 10% buffer for fuel cost
+        freighters.append(current)
+
+    return freighters, fuel_cost_total
+
+# === Allocate Freighters for Each Direction ===
+out_freighters, out_fuel = allocate_freighters(outbound_contracts, freighter_count)
+in_freighters, in_fuel = allocate_freighters(inbound_contracts, freighter_count)
+
+# === Write Manifest ===
+grand_total_fuel = 0
+grand_total_profit = 0
+with open("freight_manifest.txt", "w") as f:
+    f.write("=== OUTBOUND ===\n")
+    for i, manifest in enumerate(out_freighters, 1):
+        total_vol = sum(c['volume'] for c in manifest)
+        total_reward = sum(c['reward'] for c in manifest)
+        base_fuel = manifest[0]['fuel_cost'] if manifest else 0
+
+        # Apply volume-based discount
+        if total_vol > 270_000:
+            discounted_fuel = base_fuel
+        elif total_vol > 200_000:
+            discounted_fuel = base_fuel * (1 - 0.10)
+        elif total_vol > 150_000:
+            discounted_fuel = base_fuel * (1 - 0.1869)
+        else:
+            discounted_fuel = base_fuel * (1 - 0.244)
+
+        profit = total_reward - discounted_fuel
+        grand_total_fuel += discounted_fuel
+        grand_total_profit += profit
+
+        f.write(f"Freighter {i} | Total Volume: {round(total_vol)} m3 | Total Reward: {round(total_reward):,} ISK | Fuel Cost: {round(discounted_fuel):,} ISK | Profit: {round(profit):,} ISK\n")
+        for c in manifest:
+            f.write(f"Issuer {c['issuer_name']} | Volume: {c['volume']} m3 |     Outbound    |      Origin: {c['start_location_name']} |        Destination: {c['end_location_name']}\n")
+        f.write("\n")
+
+
+    f.write("=== INBOUND ===\n")
+    for i, manifest in enumerate(in_freighters, 1):
+        total_vol = sum(c['volume'] for c in manifest)
+        total_reward = sum(c['reward'] for c in manifest)
+        base_fuel = manifest[0]['fuel_cost'] if manifest else 0
+
+        # Apply volume-based discount
+        if total_vol > 270_000:
+            discounted_fuel = base_fuel
+        elif total_vol > 200_000:
+            discounted_fuel = base_fuel * (1 - 0.10)
+        elif total_vol > 150_000:
+            discounted_fuel = base_fuel * (1 - 0.1869)
+        else:
+            discounted_fuel = base_fuel * (1 - 0.244)
+
+        profit = total_reward - discounted_fuel
+        grand_total_fuel += discounted_fuel
+        grand_total_profit += profit
+
+        f.write(f"Freighter {i} | Total Volume: {round(total_vol)} m3 | Total Reward: {round(total_reward):,} ISK | Fuel Cost: {round(discounted_fuel):,} ISK | Profit: {round(profit):,} ISK\n")
+        for c in manifest:
+            f.write(f"Issuer {c['issuer_name']} | Volume: {c['volume']} m3 |     Inbound     | Origin:  {c['start_location_name']} | Destination:    {c['end_location_name']}\n")
+        f.write("\n")
+
+    
+    f.write("=== Summary ===\n")
+    f.write(f"Total Cost of Fuel: {round(grand_total_fuel):,} ISK\n")
+    f.write(f"Total Profit: {round(grand_total_profit):,} ISK\n")
+    f.write(f"Isk per Isotope: {round(isotope_cost):,} ISK\n")
+    f.write(f"Freighters Used: {len(out_freighters)} outbound, {len(in_freighters)} inbound\n")
+
+print(f"Freighters used: {len(out_freighters)} outbound, {len(in_freighters)} inbound")
+print(f"Estimated total fuel cost: {round((out_fuel + in_fuel) * 2):,} ISK")
