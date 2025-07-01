@@ -5,10 +5,18 @@ from urllib.parse import urlencode
 from flask import Flask, request, redirect, session
 from dotenv import load_dotenv
 from math import sqrt
+import subprocess
 
 load_dotenv("/workspaces/Freight-Opt/keys.env")
 
 print("CLIENT_ID:", os.environ.get("ESI_CLIENT_ID"))
+
+for file in ["corporate_contracts_filtered.csv", "freight_manifest.txt"]:
+    if os.path.exists(file):
+        os.remove(file)
+        print(f"Removed existing file: {file}")
+    else:
+        print(f"File not found, skipping removal: {file}")
 
 # === Nothing so permanent like a temporary solution ===
 # This is a temporary mapping for known structures to their system IDs.
@@ -197,8 +205,10 @@ def callback():
 
     df = pd.DataFrame(filtered)
     df.to_csv("corporate_contracts_filtered.csv", index=False)
-
+    subprocess.run(["python3", "Code/Main.py"])
     return "Corporate contracts exported to corporate_contracts_filtered.csv"
 
 if __name__ == '__main__':
     app.run(port=5000)
+
+
