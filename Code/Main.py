@@ -10,6 +10,11 @@ JITA_SYSTEM_ID = 30000142
 UALX_SYSTEM_ID = 30004807
 AMARR_SYSTEM_ID = 30002187
 
+# === Empty-leg jump costs ===
+jita_to_ualx_ly = 52.276
+ualx_to_jita_ly = 35.357
+isotopes_per_ly = 2200
+
 # === Read CSV ===
 df = pd.read_csv("corporate_contracts_filtered.csv")
 
@@ -57,8 +62,6 @@ def allocate_freighters(contracts, max_freighters):
             dest_systems = set(c['end_system_id'] for c in current)
             includes_amarr = AMARR_SYSTEM_ID in dest_systems
             fuel_cost = max(c['fuel_cost'] for c in current)
-            if includes_amarr:
-                fuel_cost += 20_000_000
 
             fuel_cost_total += fuel_cost
             freighters.append(current)
@@ -88,8 +91,18 @@ def allocate_freighters(contracts, max_freighters):
 out_freighters, out_fuel = allocate_freighters(outbound_contracts, freighter_count)
 in_freighters, in_fuel = allocate_freighters(inbound_contracts, freighter_count)
 
+unused_out = max(0, len(in_freighters) - len(out_freighters))
+unused_in = max(0, len(out_freighters) - len(in_freighters))
+empty_discount = (1 - 0.244)
+empty_leg_fuel = (
+    unused_out * round((ualx_to_jita_ly * isotopes_per_ly * isotope_cost) * empty_discount) +
+    unused_in * round((jita_to_ualx_ly * isotopes_per_ly * isotope_cost) * empty_discount)
+)
+
+
+
 # === Write Manifest ===
-grand_total_fuel = 0
+grand_total_fuel = empty_leg_fuel
 grand_total_profit = 0
 with open("freight_manifest.txt", "w") as f:
     f.write("=== OUTBOUND ===\n")
@@ -142,6 +155,8 @@ with open("freight_manifest.txt", "w") as f:
 
     f.write("=== Summary ===\n")
     f.write(f"Total Cost of Fuel: {round(grand_total_fuel):,} ISK\n")
-    f.write(f"Total Profit: {round(grand_total_profit):,} ISK\n")
+    f.write(f"Total Profit: {round(grand_total_profit - empty_leg_fuel):,} ISK\n")
     f.write(f"Isk per Isotope: {round(isotope_cost):,} ISK\n")
     f.write(f"Freighters Used: {len(out_freighters)} outbound, {len(in_freighters)} inbound\n")
+    if unused_out > 0 or unused_in > 0:
+        f.write(f"Empty Freighters out: {round(unused_out)} | Empty Freighters in: {round(unused_in)}\n")

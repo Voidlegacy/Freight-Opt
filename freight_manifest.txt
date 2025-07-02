@@ -1,31 +1,35 @@
 === OUTBOUND ===
-Freighter 1 | Total Volume: 348409 m3 | Total Reward: 320,000,000 ISK | Fuel Cost: 97,231,750 ISK | Base fuel: 97231750 | Profit: 222,768,250 ISK
-Issuer Bolmaea Hegirin | Volume: 348409 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
+Freighter 1 | Total Volume: 328833 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 93,342,480 ISK | Base fuel: 93342480 | Profit: 204,657,520 ISK
+Issuer Bolmaea Hegirin | Volume: 213723 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
+Issuer Catharina van Hemessen | Volume: 115111 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
 
-Freighter 2 | Total Volume: 88150 m3 | Total Reward: 81,000,000 ISK | Fuel Cost: 73,507,203 ISK | Base fuel: 97231750 | Profit: 7,492,797 ISK
-Issuer Nari Kashada | Volume: 40884 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
-Issuer Radski82 | Volume: 38227 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
-Issuer Nari Kashada | Volume: 9039 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
+Freighter 2 | Total Volume: 72994 m3 | Total Reward: 92,000,000 ISK | Fuel Cost: 70,566,915 ISK | Base fuel: 93342480 | Profit: 21,433,085 ISK
+Issuer FireStarter Ambraelle | Volume: 41295 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
+Issuer Zannah Eco | Volume: 30932 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
+Issuer Samuel Hanomaa | Volume: 767 m3 |     Outbound    |      Origin: UALX-3 - 1st Goonstantinople |        Destination: Jita IV - Moon 4 - Caldari Navy Assembly Plant
 
 === INBOUND ===
-Freighter 1 | Total Volume: 349999 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 143,759,000 ISK |Base fuel: 143759000 | Profit: 154,241,000 ISK
-Issuer ChiefOmnicronm | Volume: 349999 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
+Freighter 1 | Total Volume: 350000 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 138,008,640 ISK |Base fuel: 138008640 | Profit: 159,991,360 ISK
+Issuer Jita Mabonar | Volume: 350000 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
 
-Freighter 2 | Total Volume: 130706 m3 | Total Reward: 271,000,000 ISK | Fuel Cost: 108,681,804 ISK |Base fuel: 143759000 | Profit: 162,318,196 ISK
-Issuer Griesch Kazumoto | Volume: 100425 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer GrimReefer2 | Volume: 27441 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Anrem Smaragdu | Volume: 2770 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Akava Ozran | Volume: 17 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer TheStinkyToe2 | Volume: 15 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Norbek Salad | Volume: 15 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Fen Azu | Volume: 14 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Meili Ling | Volume: 7 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Bartok Armer | Volume: 1 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Freija Tokila | Volume: 0 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
-Issuer Meili Ling | Volume: 0 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
+Freighter 2 | Total Volume: 350000 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 138,008,640 ISK |Base fuel: 138008640 | Profit: 159,991,360 ISK
+Issuer Jita Mabonar | Volume: 350000 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
+
+Freighter 3 | Total Volume: 350000 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 138,008,640 ISK |Base fuel: 138008640 | Profit: 159,991,360 ISK
+Issuer Jita Mabonar | Volume: 350000 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
+
+Freighter 4 | Total Volume: 350000 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 138,008,640 ISK |Base fuel: 138008640 | Profit: 159,991,360 ISK
+Issuer Jita Mabonar | Volume: 350000 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
+
+Freighter 5 | Total Volume: 350000 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 138,008,640 ISK |Base fuel: 138008640 | Profit: 159,991,360 ISK
+Issuer Jita Mabonar | Volume: 350000 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
+
+Freighter 6 | Total Volume: 350000 m3 | Total Reward: 298,000,000 ISK | Fuel Cost: 138,008,640 ISK |Base fuel: 138008640 | Profit: 159,991,360 ISK
+Issuer Jita Mabonar | Volume: 350000 m3 |     Inbound     | Origin:  Jita IV - Moon 4 - Caldari Navy Assembly Plant | Destination:    UALX-3 - 1st Goonstantinople
 
 === Summary ===
-Total Cost of Fuel: 423,179,757 ISK
-Total Profit: 546,820,243 ISK
-Isk per Isotope: 1,250 ISK
-Freighters Used: 2 outbound, 2 inbound
+Total Cost of Fuel: 1,274,228,895 ISK
+Total Profit: 1,186,038,765 ISK
+Isk per Isotope: 1,200 ISK
+Freighters Used: 2 outbound, 6 inbound
+Empty Freighters out: 4 | Empty Freighters in: 0
