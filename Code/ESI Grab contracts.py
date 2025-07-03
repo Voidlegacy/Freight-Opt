@@ -205,7 +205,7 @@ def callback():
 
     df = pd.DataFrame(filtered)
     df.to_csv("corporate_contracts_filtered.csv", index=False)
-    subprocess.run(["python3", "Code/Main.py"])
+    subprocess.run(["python3", "Code/Main iteration.py"])
     return "Corporate contracts exported to corporate_contracts_filtered.csv"
 
 if __name__ == '__main__':

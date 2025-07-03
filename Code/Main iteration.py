@@ -1,8 +1,13 @@
 import pandas as pd
+from ortools.sat.python import cp_model
 
 # === User Inputs ===
-freighter_count = int(input("How many freighters are you using (per direction)? "))
-isotope_cost = float(input("Enter cost per isotope (ISK): "))
+while True:
+    try:
+        isotope_cost = float(input("Enter cost per isotope (ISK): "))
+        break  # Exit loop if input is valid
+    except ValueError:
+        print("Invalid input. Please enter a numeric value.")
 
 # === Configuration ===
 FREIGHTER_VOLUME_LIMIT = 350_000  # m3
@@ -30,66 +35,70 @@ df = df.sort_values(by="volume", ascending=False).reset_index(drop=True)
 # === Split contracts by direction ===
 outbound_contracts = df[df['direction'] == 'outbound']
 inbound_contracts = df[df['direction'] == 'inbound']
+out_contracts_list = outbound_contracts.to_dict('records')
+in_contracts_list = inbound_contracts.to_dict('records')
 
-def allocate_freighters(contracts, max_freighters):
-    freighters = []
-    current = []
-    current_volume = 0
-    freighters_used = 0
-    fuel_cost_total = 0
 
-    def calculate_fuel_cost(c):
-        route = (c['start_location_name'], c['end_location_name'])
-        if route == ("Jita IV - Moon 4 - Caldari Navy Assembly Plant", "UALX-3 - 1st Goonstantinople"):
-            return round(52.276 * 2200 * isotope_cost)
-        elif route == ("UALX-3 - 1st Goonstantinople", "Jita IV - Moon 4 - Caldari Navy Assembly Plant"):
-            return round(35.357 * 2200 * isotope_cost)
-        return round(c['lightyears'] * 2200 * isotope_cost)
 
-    for _, row in contracts.iterrows():
-        vol = row['volume']
-        row_dict = row.to_dict()
-        current.append(row_dict)
-        current_volume += vol
+def minimize_freighters (contracts, FREIGHTER_VOLUME_LIMIT):
+        for c in contracts:
+            c['volume'] = int(-(-c['volume'] // 1))  # Round up to nearest integer for volume
+        model = cp_model.CpModel()
+        num_contracts = len(contracts)
+        max_bins = num_contracts # Worst case; 1 contract per freighter
 
-        if current_volume > FREIGHTER_VOLUME_LIMIT:
-            current.pop()
-            current_volume -= vol
+        x = {}
+        for c in range(num_contracts):
+            for b in range(max_bins):
+                x[(c,b)] = model.NewBoolVar(f'contract_{c}_in_bin_{b}')
+        used = [model.NewBoolVar(f'used_bin_{b}') for b in range(max_bins)]
 
-            for c in current:
-                c['fuel_cost'] = calculate_fuel_cost(c)
+        for c in range(num_contracts):
+            model.add(sum(x[(c,b)] for b in range(max_bins)) == 1)  # Each contract must be assigned to exactly one bin
 
-            dest_systems = set(c['end_system_id'] for c in current)
-            includes_amarr = AMARR_SYSTEM_ID in dest_systems
-            fuel_cost = max(c['fuel_cost'] for c in current)
+        for b in range(max_bins):
+            model.add(
+                sum(x[(c, b)] * contracts[c]['volume'] for c in range(num_contracts)) <= FREIGHTER_VOLUME_LIMIT
+            )
+            for c in range(num_contracts):
+                model.add(x[(c,b)] <= used[b]) # If a contract is in a bin, it is used.
+        
+        # Minimize the number of Freighters used
+        model.minimize(sum(used))
 
-            fuel_cost_total += fuel_cost
-            freighters.append(current)
-            freighters_used += 1
-            if freighters_used == max_freighters:
-                return freighters, fuel_cost_total
+        # Solve
+        solver = cp_model.CpSolver()
+        status = solver.Solve(model)
 
-            current = [row_dict]
-            current_volume = vol
+        if status in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
+            freighter_allocations = []
+            for b in range(max_bins):
+                if solver.Value(used[b]):
+                    manifest = []
+                    for c in range(num_contracts):
+                        if solver.Value(x[(c,b)]):
+                            manifest.append(contracts[c])
+                    freighter_allocations.append(manifest)
+            return freighter_allocations, 0
+        else:
+            print("No feasible solution found.")
+            return [], 0
+        
+        # === Allocate Freighters for Each Direction ===
+out_freighters, out_fuel = minimize_freighters(out_contracts_list, FREIGHTER_VOLUME_LIMIT)
+in_freighters, in_fuel = minimize_freighters(in_contracts_list, FREIGHTER_VOLUME_LIMIT)
 
-    if current and freighters_used < max_freighters:
-        for c in current:
+def calculate_fuel_cost(c):
+    route = (c['start_location_name'], c['end_location_name'])
+    if route == ("Jita IV - Moon 4 - Caldari Navy Assembly Plant", "UALX-3 - 1st Goonstantinople"):
+        return round(52.276 * 2200 * isotope_cost)
+    elif route == ("UALX-3 - 1st Goonstantinople", "Jita IV - Moon 4 - Caldari Navy Assembly Plant"):
+        return round(35.357 * 2200 * isotope_cost)
+    return round(c['lightyears'] * 2200 * isotope_cost)
+
+for manifest in out_freighters + in_freighters:
+        for c in manifest:
             c['fuel_cost'] = calculate_fuel_cost(c)
-
-        dest_systems = set(c['end_system_id'] for c in current)
-        includes_amarr = AMARR_SYSTEM_ID in dest_systems
-        fuel_cost = max(c['fuel_cost'] for c in current)
-        if includes_amarr:
-            fuel_cost += 20_000_000
-
-        fuel_cost_total += fuel_cost * 1.1
-        freighters.append(current)
-
-    return freighters, fuel_cost_total
-
-# === Allocate Freighters for Each Direction ===
-out_freighters, out_fuel = allocate_freighters(outbound_contracts, freighter_count)
-in_freighters, in_fuel = allocate_freighters(inbound_contracts, freighter_count)
 
 # === Calculate Empty Leg Fuel Costs ===
 unused_out = max(0, len(in_freighters) - len(out_freighters))
