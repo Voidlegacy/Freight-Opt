@@ -6,6 +6,9 @@ from flask import Flask, request, redirect, session
 from dotenv import load_dotenv
 from math import sqrt
 import subprocess
+import webbrowser 
+import threading
+import time
 
 load_dotenv("/workspaces/Freight-Opt/keys.env")
 
@@ -26,8 +29,9 @@ structure_system_map = {
     1046664001931: 30004807, # UALX-3
     60008494: 30002187, # Amarr
 }
-
+from werkzeug.middleware.proxy_fix import ProxyFix
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = "G29F9hhdkOIJ3z4jg834jdkfjlj32KD=="
 app.config.update(
     SESSION_COOKIE_NAME="esi_session",
@@ -103,24 +107,28 @@ def resolve_id_to_name(id_list, headers):
         return {entry['id']: entry['name'] for entry in res.json()}
     return {}
 
-# === OAuth Login ===
+
+# === OAuth Callback ===
 @app.route('/')
 def login():
-    session['state'] = os.urandom(8).hex()
+    state = os.urandom(8).hex()
+    session['state'] = state
+    print(f"Generated and stored state: {state}")
     params = {
         'response_type': 'code',
         'redirect_uri': REDIRECT_URI,
         'client_id': CLIENT_ID,
         'scope': SCOPES,
-        'state': session['state'],
+        'state': state,
     }
     return redirect(f"{AUTH_URL}?{urlencode(params)}")
 
-# === OAuth Callback ===
 @app.route('/callback')
 def callback():
-    if request.args.get('state') != session.get('state'):
-        return "State mismatch."
+    received_state = request.args.get('state')
+    expected_state = session.get('state')
+    if received_state != expected_state:
+        return f"State mismatch. Expected: {expected_state}, Received: {received_state}", 400
 
     code = request.args.get('code')
     auth = (CLIENT_ID, SECRET_KEY)
@@ -208,7 +216,7 @@ def callback():
     subprocess.run(["python3", "Code/Main iteration.py"])
     return "Corporate contracts exported to corporate_contracts_filtered.csv"
 
+
+
 if __name__ == '__main__':
-    app.run(port=5000)
-
-
+    app.run(host='0.0.0.0', port=5000, debug=True)

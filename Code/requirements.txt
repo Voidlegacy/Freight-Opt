@@ -1,1 +1,7 @@
 pandas
+dotenv
+subprocess
+flask
+weasyprint
+requests
+ortools

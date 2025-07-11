@@ -1,5 +1,7 @@
 import pandas as pd
 from ortools.sat.python import cp_model
+import webbrowser
+from weasyprint import HTML
 
 # === User Inputs ===
 while True:
@@ -114,61 +116,104 @@ empty_leg_fuel = (
 # === Write Manifest ===
 grand_total_fuel = empty_leg_fuel
 grand_total_profit = 0
-with open("freight_manifest.txt", "w") as f:
-    f.write("=== OUTBOUND ===\n")
-    for i, manifest in enumerate(out_freighters, 1):
-        total_vol = sum(c['volume'] for c in manifest)
-        total_reward = sum(c['reward'] for c in manifest)
-        fuel_cost = max(c['fuel_cost'] for c in manifest)
+html = """
+<html>
+<head>
+    <title>Freight Manifest</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        h2 { margin-top: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .freighter-header { background-color: #ddd; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1>Freight Manifest</h1>
+<h2>Outbound</h2>
+"""
 
-        # Applies reductions in fuel use because of econs
-        if total_vol > 270_000:
-            discounted_fuel = fuel_cost
-        elif total_vol > 200_000:
-            discounted_fuel = fuel_cost * (1 - 0.10)
-        elif total_vol > 150_000:
-            discounted_fuel = fuel_cost * (1 - 0.1869)
-        else:
-            discounted_fuel = fuel_cost * (1 - 0.244)
+# Outbound freighters
+for i, manifest in enumerate(out_freighters, 1):
+    total_vol = sum(c['volume'] for c in manifest)
+    total_reward = sum(c['reward'] for c in manifest)
+    fuel_cost = max(c['fuel_cost'] for c in manifest)
 
-        profit = total_reward - discounted_fuel
-        grand_total_fuel += discounted_fuel
-        grand_total_profit += profit
+    if total_vol > 270_000:
+        discounted_fuel = fuel_cost
+    elif total_vol > 200_000:
+        discounted_fuel = fuel_cost * (1 - 0.10)
+    elif total_vol > 150_000:
+        discounted_fuel = fuel_cost * (1 - 0.1869)
+    else:
+        discounted_fuel = fuel_cost * (1 - 0.244)
 
-        f.write(f"Freighter {i} | Total Volume: {round(total_vol)} m3 | Total Reward: {round(total_reward):,} ISK | Fuel Cost: {round(discounted_fuel):,} ISK | Base fuel: {round(fuel_cost)} | Profit: {round(profit):,} ISK\n")
-        for c in manifest:
-            f.write(f"Issuer {c['issuer_name']} | Volume: {round(c['volume'])} m3 |     Outbound    |      Origin: {c['start_location_name']} |        Destination: {c['end_location_name']}\n")
-        f.write("\n")
+    profit = total_reward - discounted_fuel
+    grand_total_fuel += discounted_fuel
+    grand_total_profit += profit
 
-    f.write("=== INBOUND ===\n")
-    for i, manifest in enumerate(in_freighters, 1):
-        total_vol = sum(c['volume'] for c in manifest)
-        total_reward = sum(c['reward'] for c in manifest)
-        fuel_cost = max(c['fuel_cost'] for c in manifest)
+    html += f"""
+    <div class="freighter-header">Freighter {i} | Volume: {round(total_vol)} m³ | Reward: {round(total_reward):,} ISK | Fuel: {round(discounted_fuel):,} ISK | Base Fuel: {round(fuel_cost)} | Profit: {round(profit):,} ISK</div>
+    <table>
+    <tr><th>Issuer</th><th>Volume (m³)</th><th>Direction</th><th>Origin</th><th>Destination</th></tr>
+    """
 
-        # Applies reductions in fuel use because of econs
-        if total_vol > 270_000:
-            discounted_fuel = fuel_cost
-        elif total_vol > 200_000:
-            discounted_fuel = fuel_cost * (1 - 0.10)
-        elif total_vol > 150_000:
-            discounted_fuel = fuel_cost * (1 - 0.1869)
-        else:
-            discounted_fuel = fuel_cost * (1 - 0.244)
+    for c in manifest:
+        html += f"<tr><td>{c['issuer_name']}</td><td>{round(c['volume'])}</td><td>Outbound</td><td>{c['start_location_name']}</td><td>{c['end_location_name']}</td></tr>"
+    html += "</table>"
 
-        profit = total_reward - discounted_fuel
-        grand_total_fuel += discounted_fuel
-        grand_total_profit += profit
+html += "<h2>Inbound</h2>"
 
-        f.write(f"Freighter {i} | Total Volume: {round(total_vol)} m3 | Total Reward: {round(total_reward):,} ISK | Fuel Cost: {round(discounted_fuel):,} ISK |Base fuel: {round(fuel_cost)} | Profit: {round(profit):,} ISK\n")
-        for c in manifest:
-            f.write(f"Issuer {c['issuer_name']} | Volume: {round(c['volume'])} m3 |     Inbound     | Origin:  {c['start_location_name']} | Destination:    {c['end_location_name']}\n")
-        f.write("\n")
+# Inbound freighters
+for i, manifest in enumerate(in_freighters, 1):
+    total_vol = sum(c['volume'] for c in manifest)
+    total_reward = sum(c['reward'] for c in manifest)
+    fuel_cost = max(c['fuel_cost'] for c in manifest)
 
-    f.write("=== Summary ===\n")
-    f.write(f"Total Cost of Fuel: {round(grand_total_fuel + empty_leg_fuel):,} ISK\n")
-    f.write(f"Total Profit: {round(grand_total_profit - empty_leg_fuel):,} ISK\n")
-    f.write(f"Isk per Isotope: {round(isotope_cost):,} ISK\n")
-    f.write(f"Freighters Used: {len(out_freighters)} outbound, {len(in_freighters)} inbound\n")
-    if unused_out > 0 or unused_in > 0:
-        f.write(f"Empty Freighters out: {round(unused_out)} | Empty Freighters in: {round(unused_in)}\n")
+    if total_vol > 270_000:
+        discounted_fuel = fuel_cost
+    elif total_vol > 200_000:
+        discounted_fuel = fuel_cost * (1 - 0.10)
+    elif total_vol > 150_000:
+        discounted_fuel = fuel_cost * (1 - 0.1869)
+    else:
+        discounted_fuel = fuel_cost * (1 - 0.244)
+
+    profit = total_reward - discounted_fuel
+    grand_total_fuel += discounted_fuel
+    grand_total_profit += profit
+
+    html += f"""
+    <div class="freighter-header">Freighter {i} | Volume: {round(total_vol)} m³ | Reward: {round(total_reward):,} ISK | Fuel: {round(discounted_fuel):,} ISK | Base Fuel: {round(fuel_cost)} | Profit: {round(profit):,} ISK</div>
+    <table>
+    <tr><th>Issuer</th><th>Volume (m³)</th><th>Direction</th><th>Origin</th><th>Destination</th></tr>
+    """
+
+    for c in manifest:
+        html += f"<tr><td>{c['issuer_name']}</td><td>{round(c['volume'])}</td><td>Inbound</td><td>{c['start_location_name']}</td><td>{c['end_location_name']}</td></tr>"
+    html += "</table>"
+
+# Summary section
+html += f"""
+<h2>Summary</h2>
+<ul>
+    <li><b>Total Cost of Fuel:</b> {round(grand_total_fuel + empty_leg_fuel):,} ISK</li>
+    <li><b>Total Profit:</b> {round(grand_total_profit - empty_leg_fuel):,} ISK</li>
+    <li><b>Isk per Isotope:</b> {round(isotope_cost):,} ISK</li>
+    <li><b>Freighters Used:</b> {len(out_freighters)} outbound, {len(in_freighters)} inbound</li>
+"""
+
+if unused_out > 0 or unused_in > 0:
+    html += f"<li><b>Empty Freighters:</b> {unused_out} outbound | {unused_in} inbound</li>"
+
+html += "</ul></body></html>"
+
+with open("freight_manifest.html", "w", encoding="utf-8") as f:
+    f.write(html)
+
+def open_manifest():
+    webbrowser.open_new("freight_manifest.html")
+
+# open_manifest()
+

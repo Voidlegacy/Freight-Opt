@@ -1,0 +1,11 @@
+{
+    "name": Freight-Opt",
+    "forwardPorts": [5000],
+    "portsAttributes": {
+        "5000": {
+            "label": "Flask App",
+            "onAutoForward": "openPreview",
+            "visibility": "public"
+        }
+    }
+}
